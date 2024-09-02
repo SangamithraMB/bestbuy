@@ -17,14 +17,14 @@ class Store:
             get_all_products() -> List[Product]: Returns a list of all active products in the store.
             order(shopping_list: List[Tuple[Product, int]]) -> float:Processes an order from store & returns total price
     """
-    def __init__(self, products: List[Product]):
+    def __init__(self, initial_products: List[Product]):
         """
                 Initializes the Store with a list of products.
 
                 Args:
-                    products (List[Product]): A list of products to be added to the store's inventory.
+                    initial_products (List[Product]): A list of products to be added to the store's inventory.
         """
-        self.products = products
+        self.products = initial_products
 
     def add_product(self, product: Product):
         """

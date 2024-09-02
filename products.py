@@ -15,7 +15,8 @@ class Product:
            activate(): Activates the product.
            deactivate(): Deactivates the product.
            show() -> str: Returns a string representation of the product's details.
-           buy(quantity) -> float: Processes a purchase of the product, reducing its quantity and returning the total price.
+           buy(quantity) -> float: Processes a purchase of the product,
+           reducing its quantity and returning the total price.
     """
 
     def __init__(self, name, price, quantity):
@@ -102,13 +103,15 @@ class Product:
                 Processes a purchase of the product.
 
                 Args:
-                    quantity (int): The amount of product to buy. Must be greater than zero and less than or equal to the available quantity.
+                    quantity (int): The amount of product to buy.
+                    Must be greater than zero and less than or equal to the available quantity.
 
                 Returns:
                     float: The total price for the quantity of product bought.
 
                 Raises:
-                    ValueError: If quantity is less than or equal to zero, or if there isn't enough quantity available.
+                    ValueError: If quantity is less than or equal to zero,
+                    or if there isn't enough quantity available.
         """
         if quantity <= 0:
             raise ValueError("Purchase quantity must be greater than zero.")
