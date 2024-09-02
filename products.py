@@ -120,7 +120,37 @@ class Product:
         total_price = quantity * self.price
         self.set_quantity(self._quantity - quantity)
         return total_price
+class NonStockedProduct(Product):
+    """
+    Represents a product that is not physically stocked in the store.
+    """
 
+    def __init__(self, name: str, price: float):
+        super().__init__(name, price, quantity=0)
+
+    def set_quantity(self, quantity: int):
+        if quantity != 0:
+            raise ValueError("Non-stocked products cannot have a quantity other than 0.")
+
+    def show(self) -> str:
+        return f"{self.name} (Non-Stocked), Price: ${self.price:.2f}"
+
+class LimitedProduct(Product):
+    """
+    Represents a product that has a maximum purchase limit per order.
+    """
+
+    def __init__(self, name: str, price: float, quantity: int, maximum: int):
+        super().__init__(name, price, quantity)
+        self.maximum = maximum
+
+    def buy(self, quantity: int) -> float:
+        if quantity > self.maximum:
+            raise ValueError(f"Cannot purchase more than {self.maximum} of '{self.name}' at once.")
+        return super().buy(quantity)
+
+    def show(self) -> str:
+        return f"{self.name} (Limited: {self.maximum} per order), Price: ${self.price:.2f}, Quantity: {self._quantity}"
 
 if __name__ == "__main__":
     bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)

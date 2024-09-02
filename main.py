@@ -1,11 +1,14 @@
-from products import Product
+from products import Product, NonStockedProduct, LimitedProduct
 from store import Store
 
 product_list = [
     Product("MacBook Air M2", price=1450, quantity=100),
     Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-    Product("Google Pixel 7", price=500, quantity=250)
+    Product("Google Pixel 7", price=500, quantity=250),
+    NonStockedProduct("Windows License", price=125),
+    LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
 ]
+
 
 best_buy = Store(product_list)
 
@@ -70,7 +73,7 @@ def make_order(store: Store):
     shopping_list = []
     while True:
         product_choice = input("Which product # do you want? ").strip()
-        quantity = input("What amount do you want? ")
+        quantity = input("What amount do you want? ").strip()
         if product_choice == '' or quantity == '':
             return
         else:
@@ -89,7 +92,7 @@ def make_order(store: Store):
         if shopping_list:
             try:
                 total_price = store.order(shopping_list)
-                print(f"\nOrder made! Total payment: ${round(total_price)} ")
+                print(f"\nOrder made! Total payment: ${round(total_price, 2)} ")
             except ValueError as e:
                 print(f"Order error: {e}")
 

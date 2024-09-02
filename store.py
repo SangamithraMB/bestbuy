@@ -80,7 +80,12 @@ class Store:
         for product, quantity in shopping_list:
             if not product.is_active():
                 raise ValueError(f"Product '{product.name}' is not active and cannot be purchased.")
-            total_price += product.buy(quantity)
+            if quantity <= 0:
+                raise ValueError("Quantity must be greater than zero.")
+            try:
+                total_price += product.buy(quantity)
+            except ValueError as e:
+                raise ValueError(f"Failed to buy {quantity} of product '{product.name}': {e}")
         return total_price
 
 
