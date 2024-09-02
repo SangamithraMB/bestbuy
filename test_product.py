@@ -1,51 +1,42 @@
 import pytest
-from products import Product
+from products import NonStockedProduct, LimitedProduct
 
 
-def test_create_normal_product():
-    """Test that creating a normal product works."""
-    product = Product(name="MacBook Air M2", price=1450, quantity=100)
-    assert product.name == "MacBook Air M2"
-    assert product.price == 1450
-    assert product.get_quantity() == 100
+def test_create_non_stocked_product():
+    """Test that creating a non-stocked product works."""
+    product = NonStockedProduct(name="Windows License", price=125)
+    assert product.name == "Windows License"
+    assert product.price == 125
+    assert product.get_quantity() == 0
     assert product.is_active() is True
 
 
-def test_create_product_with_empty_name():
-    """Test that creating a product with an empty name raises a ValueError."""
-    with pytest.raises(ValueError, match="Name cannot be empty."):
-        Product(name="", price=1450, quantity=100)
+def test_non_stocked_product_quantity_cannot_be_set():
+    """Test that setting quantity of non-stocked product raises an exception."""
+    product = NonStockedProduct(name="Windows License", price=125)
+    with pytest.raises(ValueError, match="Non-stocked products cannot have a quantity other than 0."):
+        product.set_quantity(10)
 
 
-def test_create_product_with_negative_price():
-    """Test that creating a product with a negative price raises a ValueError."""
-    with pytest.raises(ValueError, match="Price cannot be negative."):
-        Product(name="MacBook Air M2", price=-10, quantity=100)
+def test_create_limited_product():
+    """Test that creating a limited product works."""
+    product = LimitedProduct(name="Shipping", price=10, quantity=250, maximum=1)
+    assert product.name == "Shipping"
+    assert product.price == 10
+    assert product.get_quantity() == 250
+    assert product.maximum == 1
 
 
-def test_create_product_with_negative_quantity():
-    """Test that creating a product with a negative quantity raises a ValueError."""
-    with pytest.raises(ValueError, match="Quantity cannot be negative."):
-        Product(name="MacBook Air M2", price=1450, quantity=-10)
+def test_limited_product_buy_within_limit():
+    """Test that buying within the limit for a limited product works."""
+    product = LimitedProduct(name="Shipping", price=10, quantity=250, maximum=1)
+    total_price = product.buy(1)
+    assert product.get_quantity() == 249
+    assert total_price == 10
 
 
-def test_product_becomes_inactive_when_quantity_zero():
-    """Test that when a product reaches 0 quantity, it becomes inactive."""
-    product = Product(name="MacBook Air M2", price=1450, quantity=10)
-    product.set_quantity(0)
-    assert product.is_active() is False
-
-
-def test_product_purchase_modifies_quantity_and_returns_right_output():
-    """Test that product purchase modifies the quantity and returns the correct total price."""
-    product = Product(name="MacBook Air M2", price=1450, quantity=10)
-    total_price = product.buy(2)
-    assert product.get_quantity() == 8
-    assert total_price == 2 * 1450
-
-
-def test_buying_more_than_available_quantity_raises_exception():
-    """Test that buying a larger quantity than exists raises a ValueError."""
-    product = Product(name="MacBook Air M2", price=1450, quantity=10)
-    with pytest.raises(ValueError, match="Not enough quantity available for purchase."):
-        product.buy(15)
+def test_limited_product_buy_exceeding_limit():
+    """Test that buying more than the limit for a limited product raises an exception."""
+    product = LimitedProduct(name="Shipping", price=10, quantity=250, maximum=1)
+    with pytest.raises(ValueError, match="Cannot purchase more than 1 of 'Shipping' at once."):
+        product.buy(2)
