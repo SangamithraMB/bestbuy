@@ -64,17 +64,17 @@ class Store:
 
     def order(self, shopping_list: List[Tuple[Product, int]]) -> float:
         """
-                Processes an order, purchasing the specified quantities of products.
+            Processes an order, purchasing the specified quantities of products.
 
-                Args:
-                    shopping_list (List[Tuple[Product, int]]): A list of tuples where each tuple contains a product and
-                    the quantity to purchase.
+            Args:
+                shopping_list (List[Tuple[Product, int]]): A list of tuples where each tuple contains a product and
+                the quantity to purchase.
 
-                Returns:
-                    float: The total price of the order.
+            Returns:
+                float: The total price of the order.
 
-                Raises:
-                    ValueError: If a product in the order is not active or if the purchase cannot be completed.
+            Raises:
+                ValueError: If a product in the order is not active or if the purchase cannot be completed.
         """
         total_price = 0.0
         for product, quantity in shopping_list:
