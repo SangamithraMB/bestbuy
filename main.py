@@ -1,4 +1,4 @@
-from products import Product, NonStockedProduct, LimitedProduct
+from products import Product, NonStockedProduct, LimitedProduct, SecondHalfPrice, ThirdOneFree, PercentDiscount
 from store import Store
 
 product_list = [
@@ -8,6 +8,14 @@ product_list = [
     NonStockedProduct("Windows License", price=125),
     LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
 ]
+
+second_half_price = SecondHalfPrice("Second Half price!")
+third_one_free = ThirdOneFree("Third One Free!")
+thirty_percent = PercentDiscount("30% off!", percent=30)
+
+product_list[0].set_promotion(second_half_price)
+product_list[1].set_promotion(third_one_free)
+product_list[3].set_promotion(thirty_percent)
 
 
 best_buy = Store(product_list)
@@ -75,7 +83,7 @@ def make_order(store: Store):
         product_choice = input("Which product # do you want? ").strip()
         quantity = input("What amount do you want? ").strip()
         if product_choice == '' or quantity == '':
-            return
+            break
         else:
             try:
                 product_choice = int(product_choice)
@@ -83,18 +91,18 @@ def make_order(store: Store):
                 if 0 < product_choice <= len(enumerated_product):
                     selected_product = enumerated_product[product_choice - 1][1]
                     shopping_list.append((selected_product, quantity))
-                    print("Product added to list!")
+                    print("Product added to list!\n")
                 else:
                     print("Error adding product!")
             except ValueError:
                 print("Error adding product!")
 
-        if shopping_list:
-            try:
-                total_price = store.order(shopping_list)
-                print(f"\nOrder made! Total payment: ${round(total_price, 2)} ")
-            except ValueError as e:
-                print(f"Order error: {e}")
+    if shopping_list:
+        try:
+            total_price = store.order(shopping_list)
+            print(f"\nOrder made! Total payment: ${round(total_price, 2)} ")
+        except ValueError as e:
+            print(f"Order error: {e}")
 
 
 def start(store: Store):

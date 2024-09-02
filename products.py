@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+
+
 class Product:
     """
        A class representing a product in a store.
@@ -42,6 +45,7 @@ class Product:
         self.price = price
         self._quantity = quantity
         self.active = True
+        self.promotion = None
 
     def get_quantity(self) -> float:
         """
@@ -63,7 +67,7 @@ class Product:
                     ValueError: If quantity is negative.
         """
         if quantity < 0:
-            raise ValueError("Quantity Cannot be zero or negative.")
+            raise ValueError("Quantity cannot be negative.")
         self._quantity = quantity
         if self._quantity == 0:
             self.deactivate()
@@ -78,16 +82,29 @@ class Product:
         return self.active
 
     def activate(self):
-        """
-                Activates the product, making it available for purchase.
-        """
         self.active = True
 
     def deactivate(self):
-        """
-                Deactivates the product, making it unavailable for purchase.
-        """
         self.active = False
+
+    def set_promotion(self, promotion: 'Promotion'):
+        if promotion is not None and not isinstance(promotion, Promotion):
+            raise ValueError("Promotion must be an instance of the Promotion class.")
+        self.promotion = promotion
+
+    def buy(self, quantity: int) -> float:
+        if quantity <= 0:
+            raise ValueError("Purchase quantity must be greater than zero.")
+        if quantity > self._quantity:
+            raise ValueError("Not enough quantity available for purchase.")
+
+        total_price = quantity * self.price
+        if self.promotion:
+            total_price = self.promotion.apply_promotion(self, quantity)
+
+        new_quantity = self._quantity - quantity
+        self.set_quantity(new_quantity)
+        return total_price
 
     def show(self) -> str:
         """
@@ -96,30 +113,10 @@ class Product:
                 Returns:
                     str: A string showing the product's name, price, and quantity.
         """
-        return f"{self.name}, Price: ${self.price}, Quantity: {self._quantity}"
+        promotion_info = f", Promotion: {self.promotion.name}" if self.promotion else ""
+        return f"{self.name}, Price: ${self.price:.2f}, Quantity: {self._quantity}{promotion_info}"
 
-    def buy(self, quantity) -> float:
-        """
-                Processes a purchase of the product.
 
-                Args:
-                    quantity (int): The amount of product to buy.
-                    Must be greater than zero and less than or equal to the available quantity.
-
-                Returns:
-                    float: The total price for the quantity of product bought.
-
-                Raises:
-                    ValueError: If quantity is less than or equal to zero,
-                    or if there isn't enough quantity available.
-        """
-        if quantity <= 0:
-            raise ValueError("Purchase quantity must be greater than zero.")
-        if quantity > self._quantity:
-            raise ValueError("Not enough quantity available for purchase.")
-        total_price = quantity * self.price
-        self.set_quantity(self._quantity - quantity)
-        return total_price
 class NonStockedProduct(Product):
     """
     Represents a product that is not physically stocked in the store.
@@ -128,12 +125,12 @@ class NonStockedProduct(Product):
     def __init__(self, name: str, price: float):
         super().__init__(name, price, quantity=0)
 
-    def set_quantity(self, quantity: int):
+    def set_quantity(self, quantity):
         if quantity != 0:
             raise ValueError("Non-stocked products cannot have a quantity other than 0.")
+        # Quantity is always 0 for NonStockedProduct
+        super().set_quantity(quantity)
 
-    def show(self) -> str:
-        return f"{self.name} (Non-Stocked), Price: ${self.price:.2f}"
 
 class LimitedProduct(Product):
     """
@@ -142,6 +139,8 @@ class LimitedProduct(Product):
 
     def __init__(self, name: str, price: float, quantity: int, maximum: int):
         super().__init__(name, price, quantity)
+        if maximum <= 0:
+            raise ValueError("Maximum purchase quantity must be greater than zero.")
         self.maximum = maximum
 
     def buy(self, quantity: int) -> float:
@@ -149,8 +148,65 @@ class LimitedProduct(Product):
             raise ValueError(f"Cannot purchase more than {self.maximum} of '{self.name}' at once.")
         return super().buy(quantity)
 
-    def show(self) -> str:
-        return f"{self.name} (Limited: {self.maximum} per order), Price: ${self.price:.2f}, Quantity: {self._quantity}"
+
+# Promotion Classes
+
+class Promotion(ABC):
+    """
+    Abstract base class for promotions.
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    @abstractmethod
+    def apply_promotion(self, product: 'Product', quantity) -> float:
+        pass
+
+
+class SecondHalfPrice(Promotion):
+    """
+        Promotion where every second item is at half price.
+    """
+    def apply_promotion(self, product: 'Product', quantity) -> float:
+        if quantity <= 1:
+            return product.price * quantity
+
+        full_price_items = quantity // 2
+        half_price_items = quantity - full_price_items
+
+        total_price = (full_price_items * product.price) + (half_price_items * product.price * 0.5)
+        return total_price
+
+
+class ThirdOneFree(Promotion):
+    """
+        Promotion where you get one free item for every two purchased.
+    """
+    def apply_promotion(self, product: 'Product', quantity) -> float:
+        if quantity <= 2:
+            return product.price * quantity
+
+        free_items = quantity // 3
+        paid_items = quantity - free_items
+
+        total_price = paid_items * product.price
+        return total_price
+
+
+class PercentDiscount(Promotion):
+    """
+        Promotion that applies a percentage discount.
+    """
+    def __init__(self, name: str, percent: float):
+        super().__init__(name)
+        if not (0 < percent < 100):
+            raise ValueError("Percent must be between 0 and 100.")
+        self.percent = percent
+
+    def apply_promotion(self, product: 'Product', quantity) -> float:
+        return (product.price * quantity) * (1 - self.percent / 100)
+
 
 if __name__ == "__main__":
     bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
