@@ -172,8 +172,8 @@ class SecondHalfPrice(Promotion):
         if quantity <= 1:
             return product.price * quantity
 
-        full_price_items = quantity // 2
-        half_price_items = quantity - full_price_items
+        half_price_items = quantity // 2
+        full_price_items = quantity - half_price_items
 
         total_price = (full_price_items * product.price) + (half_price_items * product.price * 0.5)
         return total_price

@@ -97,20 +97,20 @@ def test_product_with_promotions():
     # Test Second Half Price Promotion
     half_price_promo = SecondHalfPrice(name="Second Half price!")
     product.set_promotion(half_price_promo)
-    total_price = product.buy(4)  # 2 at full price, 2 at half price
-    assert total_price == 1450 * 2 + 1450 * 0.5 * 2
-    assert product.get_quantity() == 5
+    total_price = product.buy(3)  # 2 at full price, 2 at half price
+    assert total_price == 1450 * 2 + 1450 * 0.5 * 1
+    assert product.get_quantity() == 6
 
     # Test Third One Free Promotion
     third_one_free_promo = ThirdOneFree(name="Third One Free!")
     product.set_promotion(third_one_free_promo)
     total_price = product.buy(3)  # 2 paid, 1 free
     assert total_price == 1450 * 2
-    assert product.get_quantity() == 2
+    assert product.get_quantity() == 3
 
     # Test Percent Discount Promotion
     percent_discount_promo = PercentDiscount(name="30% off!", percent=30)
     product.set_promotion(percent_discount_promo)
     total_price = product.buy(2)  # 30% discount
     assert total_price == (1450 * 2) * (1 - 0.30)
-    assert product.get_quantity() == 0
+    assert product.get_quantity() == 1
